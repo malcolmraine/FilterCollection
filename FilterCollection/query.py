@@ -42,6 +42,7 @@ class Query(object):
 
     def _handle_str_op(self, rval: Any, op: str, lval: Any):
         """
+        Perform a binary operation on two values.
 
         Parameters
         ----------
@@ -51,43 +52,72 @@ class Query(object):
 
         Returns
         -------
-
+        Binary operation result.
         """
         return self.op_funcs.get(op, lambda x, y: False)(rval, lval)
 
     def select(self, *args) -> Query:
+        """
+        Add an attribute selection to the query.
+
+        Parameters
+        ----------
+        args
+            Attributes to select.
+
+        Returns
+        -------
+        Query
+        """
         self._selects.extend(args)
         return self
 
     def where(self, *args) -> Query:
+        """
+        Add a where operations to a collection.
+
+        Parameters
+        ----------
+        args
+            L-value, operator, R-value or L-value and R-value for equality.
+
+        Returns
+        -------
+        Query
+        """
         self._wheres.append([*args, False])
         return self
 
     def where_not(self, *args) -> Query:
         """
+        Add a where-not operations to a collection.
 
         Parameters
         ----------
         args
+            L-value, operator, R-value or L-value and R-value for equality.
 
         Returns
         -------
-
+        Query
         """
         self._wheres.append([*args, True])
         return self
 
     def _apply_where(self, collection, where: tuple) -> list:
         """
+        Apply where operations to a collection.
 
         Parameters
         ----------
         collection
-        where
+            Collection to apply where operations to.
+        where: tuple
+            R-value, operator, and L-value of where operation.
 
         Returns
         -------
-
+        list
         """
         results = []
         invert = where[-1]
@@ -115,14 +145,16 @@ class Query(object):
 
     def _apply_selects(self, collection) -> list:
         """
+        Apply the attribute selections to a collection.
 
         Parameters
         ----------
         collection
+            Collection to apply selections to.
 
         Returns
         -------
-
+        list
         """
         if len(self._selects) == 0:
             return collection
@@ -163,10 +195,11 @@ class Query(object):
 
     def first(self) -> Any:
         """
+        Gets the first item from the query results.
 
         Returns
         -------
-
+        Any
         """
         results = self.get()
         if len(results) > 0:
