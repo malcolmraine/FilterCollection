@@ -1,3 +1,26 @@
+"""
+MIT License
+
+Copyright (c) 2023 Malcolm Hall
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
 
 
 class Query(object):
@@ -12,10 +35,22 @@ class Query(object):
 
     def __init__(self, data):
         self.data = data
-        self._wheres = []
-        self._selects = []
+        self._wheres: list = []
+        self._selects: list = []
 
     def _handle_str_op(self, rval, op, lval):
+        """
+
+        Parameters
+        ----------
+        rval
+        op
+        lval
+
+        Returns
+        -------
+
+        """
         return self.op_funcs.get(op, lambda x, y: False)(rval, lval)
 
     def select(self, *args):
@@ -27,10 +62,31 @@ class Query(object):
         return self
 
     def where_not(self, *args):
+        """
+
+        Parameters
+        ----------
+        args
+
+        Returns
+        -------
+
+        """
         self._wheres.append([*args, True])
         return self
 
     def _apply_where(self, collection, where: tuple):
+        """
+
+        Parameters
+        ----------
+        collection
+        where
+
+        Returns
+        -------
+
+        """
         results = []
         invert = where[-1]
 
@@ -56,11 +112,20 @@ class Query(object):
         return results
 
     def _apply_selects(self, collection):
+        """
+
+        Parameters
+        ----------
+        collection
+
+        Returns
+        -------
+
+        """
         if len(self._selects) == 0:
             return collection
 
         results = []
-
         for item in collection:
             result = dict()
             for attr in self._selects:
@@ -71,17 +136,34 @@ class Query(object):
         return results
 
     def get(self):
-        results = self.data
+        """
 
+        Returns
+        -------
+
+        """
+        results = self.data
         for where in self._wheres:
             results = self._apply_where(results, where)
 
         return type(self.data)(self._apply_selects(results))
 
     def exists(self) -> bool:
+        """
+
+        Returns
+        -------
+
+        """
         return not self.get().empty()
 
     def first(self):
+        """
+
+        Returns
+        -------
+
+        """
         results = self.get()
         if len(results) > 0:
             return results[0]
