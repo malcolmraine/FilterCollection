@@ -21,10 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+from __future__ import annotations
+from typing import Any, Union, Iterable
 
 
 class Query(object):
-    op_funcs = {
+    op_funcs: dict = {
         "==": lambda x, y: x == y,
         "!=": lambda x, y: x != y,
         ">=": lambda x, y: x >= y,
@@ -38,7 +40,7 @@ class Query(object):
         self._wheres: list = []
         self._selects: list = []
 
-    def _handle_str_op(self, rval, op, lval):
+    def _handle_str_op(self, rval: Any, op: str, lval: Any):
         """
 
         Parameters
@@ -53,15 +55,15 @@ class Query(object):
         """
         return self.op_funcs.get(op, lambda x, y: False)(rval, lval)
 
-    def select(self, *args):
+    def select(self, *args) -> Query:
         self._selects.extend(args)
         return self
 
-    def where(self, *args):
+    def where(self, *args) -> Query:
         self._wheres.append([*args, False])
         return self
 
-    def where_not(self, *args):
+    def where_not(self, *args) -> Query:
         """
 
         Parameters
@@ -75,7 +77,7 @@ class Query(object):
         self._wheres.append([*args, True])
         return self
 
-    def _apply_where(self, collection, where: tuple):
+    def _apply_where(self, collection, where: tuple) -> list:
         """
 
         Parameters
@@ -111,7 +113,7 @@ class Query(object):
 
         return results
 
-    def _apply_selects(self, collection):
+    def _apply_selects(self, collection) -> list:
         """
 
         Parameters
@@ -137,10 +139,11 @@ class Query(object):
 
     def get(self):
         """
+        Get the results of a query.
 
         Returns
         -------
-
+        Union[Iterable, FilterCollection]
         """
         results = self.data
         for where in self._wheres:
@@ -150,14 +153,15 @@ class Query(object):
 
     def exists(self) -> bool:
         """
+        Checks whether the result of a query produces any results.
 
         Returns
         -------
-
+        bool
         """
-        return not self.get().empty()
+        return len(self.get()) > 0
 
-    def first(self):
+    def first(self) -> Any:
         """
 
         Returns

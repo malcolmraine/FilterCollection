@@ -24,6 +24,7 @@ SOFTWARE.
 from __future__ import annotations
 from copy import deepcopy
 from query import Query
+from typing import Iterable, Any, Union
 
 
 class FilterCollection(object):
@@ -35,93 +36,104 @@ class FilterCollection(object):
 
     def __repr__(self):
         """
+        Implementation of __repr__ magic method.
 
         Returns
         -------
-
+        str
         """
         return f"FilterCollection({self.data})"
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
+        Implementation of __len__ magic method.
 
         Returns
         -------
-
+        int
         """
         return len(self.data)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int):
         """
+        Implementation of __getitem__ magic method.
 
         Parameters
         ----------
-        item
+        item: int
+            Index of the value to get.
 
         Returns
         -------
-
+        Any
         """
         return self.data[item]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: int, value: Any) -> None:
         """
+        Implementation of __getitem__ magic method.
 
         Parameters
         ----------
-        key
-        value
+        key: int
+        value: Any
 
         Returns
         -------
-
+        None
         """
         self.data[key] = value
 
-    def __iter__(self):
+    def __iter__(self) -> Any:
         """
+        Implementation of __iter__ magic method.
 
         Returns
         -------
-
+        An item from the list.
         """
         for item in self.data:
             yield item
 
-    def __copy__(self):
+    def __copy__(self) -> FilterCollection:
         """
+        Implementation of __copy__ magic method.
 
         Returns
         -------
-
+        FilterCollection
         """
         return self.__class__(deepcopy(self.data))
 
-    def __add__(self, other):
+    def __add__(self, other: Union[Iterable, FilterCollection]) -> FilterCollection:
         """
+        Implementation of __add__ magic method. Extends the collection
+        using the data from the provided argument.
 
         Parameters
         ----------
-        other
+        other: list or set or FilterCollection
 
         Returns
         -------
-
+        FilterCollection
         """
         result = self.__copy__()
         result.extend(other)
         return result
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: Union[Iterable, FilterCollection]) -> FilterCollection:
         """
+        Implementation of __truediv__ magic method. Returns the set intersection.
 
         Parameters
         ----------
-        other
+        other: Union[Iterable, FilterCollection]
+            Other collection or iterable to intersect with.
 
         Returns
         -------
-
+        FilterCollection
         """
         result = FilterCollection()
 
@@ -131,31 +143,33 @@ class FilterCollection(object):
 
         return result
 
-    def unique(self):
+    def unique(self) -> FilterCollection:
         """
+        Return only unique values in collection.
 
         Returns
         -------
-
+        FilterCollection
         """
         result = FilterCollection()
-
         for item in self:
             if item not in result:
                 result.append(item)
 
         return result
 
-    def sort(self, key=None):
+    def sort(self, key=None) -> FilterCollection:
         """
+        Sort the collection.
 
         Parameters
         ----------
         key
+            Sort-by key.
 
         Returns
         -------
-
+        FilterCollection
         """
         if key is None:
             self.data.sort()
@@ -163,31 +177,37 @@ class FilterCollection(object):
             self.data.sort(key=key)
         else:
             self.data.sort(key=lambda item: getattr(item, key))
+        return self
 
-    def to_list(self):
+    def to_list(self) -> list:
         """
+        Convert collection to native list form.
 
         Returns
         -------
-
+        list
         """
         return self.data
 
-    def insert(self, index, item):
+    def insert(self, index: int, item: Any) -> FilterCollection:
         """
+        Insert an item at the specified index.
 
         Parameters
         ----------
-        index
-        item
+        index: int
+            Index to insert item at.
+        item: Any
+            Item to insert
 
         Returns
         -------
-
+        FilterCollection
         """
         self.data.insert(index, item)
+        return self
 
-    def append(self, item):
+    def append(self, item: Any) -> FilterCollection:
         """
 
         Parameters
@@ -199,87 +219,102 @@ class FilterCollection(object):
 
         """
         self.data.append(item)
+        return self
 
-    def extend(self, items):
+    def extend(self, items: Union[Iterable, FilterCollection]) -> FilterCollection:
         """
+        Extend the collection using the provided data.
 
         Parameters
         ----------
-        items
+        items: Union[Iterable, FilterCollection]
+            Items to add to collection.
 
         Returns
         -------
-
+        FilterCollection
         """
         if isinstance(items, list):
             self.data.extend(items)
         elif isinstance(items, FilterCollection):
             self.data.extend(items.to_list())
+        return self
 
-    def clear(self):
+    def clear(self) -> None:
         """
+        Clear the collection data.
 
         Returns
         -------
-
+        None
         """
         self.data.clear()
 
-    def empty(self):
+    def empty(self) -> bool:
         """
+        Check whether the collection is empty.
 
         Returns
         -------
-
+        bool
         """
         return len(self.data) == 0
 
-    def query(self):
+    def query(self) -> Query:
         """
+        Query the collection.
 
         Returns
         -------
-
+        Query
         """
         return Query(self)
 
-    def where(self, *args):
+    def where(self, *args) -> Query:
         """
+        Create a query against the collection with a where clause.
 
         Parameters
         ----------
         args
+            Arguments to provide the query.
 
         Returns
         -------
-
+        Query
         """
         return Query(self).where(*args)
 
-    def where_not(self, *args):
+    def where_not(self, *args) -> Query:
         """
+        Create a query against the collection with a where-not clause.
 
         Parameters
         ----------
         args
+            Arguments to provide the query.
 
         Returns
         -------
-
+        Query
         """
         return Query(self).where_not(*args)
 
-    def max(self, attr, get_item=False):
+    def max(self, attr: str, get_item: bool = False) -> Any:
         """
+        Get the result with the maximum value for the given attribute.
 
         Parameters
         ----------
-        attr
-        get_item
+        attr: str
+            Attribute to use for comparison.
+        get_item: bool
+            Flag indicating whether the item itself should be returned or the
+            maximum value.
 
         Returns
         -------
-
+        Any
         """
         if len(self.data) == 0:
             return None
