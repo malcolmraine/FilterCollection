@@ -23,7 +23,7 @@ SOFTWARE.
 """
 from __future__ import annotations
 from copy import deepcopy
-from query import Query
+from .query import Query
 from typing import Iterable, Any, Union
 
 
